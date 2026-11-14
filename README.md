@@ -18,6 +18,8 @@ Majora ReMasked builds on [tgacquin’s DekUI](https://github.com/tgacquin/mm3d-
 - A full-screen menu for touch, mouse, and controllers.
 - Controller bindings and button-layout preferences, touch overlay controls, and screen swapping.
 - Remappable R3 Pictograph control, independent of equipped items.
+- Optional tap-to-toggle Z-targeting for Android touch controls (test branch).
+- Experimental ultrawide display fit with proportional HUD and text (test branch).
 - English, French and Spanish game-language selection before starting gameplay.
 - Separate presentation and native game FPS counters.
 - Customizable Wii U Style HUD with adjustable positions, scale, spacing, and visibility; custom textures supported including Henriko's 4K Texture Pack.
@@ -28,6 +30,20 @@ Majora ReMasked builds on [tgacquin’s DekUI](https://github.com/tgacquin/mm3d-
 - Dark Link appearance mod with red eyes, a matching sword, and adult voices.
 - Twilight Princess Link generated from your own GameCube Twilight Princess ROM, including action voices, matching high-resolution textures from subfolders, and an optional TP Master Sword and sheath.
 - Original green, blue, and red tunic variants, an optional Master Sword model and matching HUD icon, and matching textures from your own OoT3D texture pack when available.
+
+## Android test branch: ultrawide and toggle Z-targeting
+
+These additions are on this fork's `ultrawide` branch and are not part of the upstream release linked above. The test APK is named **ReMasked Ultrawide** and installs separately. Download the **Android-arm64** artifact from a successful [Benster Ultrawide APK build](https://github.com/TheBenster/DekUI-Fork/actions/workflows/benster-android.yml?query=branch%3Aultrawide), extract the ZIP, and install the APK.
+
+### Toggle Z-targeting
+
+Open **Settings → Touch → Touch-control options / HUD / toggle targeting** and enable **Tap to toggle Z-targeting (ZL)**. Tap the on-screen ZL button once to hold targeting and again to release it. This option affects touch controls; physical controller bindings retain their existing behavior. Opening settings, hiding the controls, or losing app focus releases the toggle. It is off by default.
+
+### Ultrawide display fit
+
+Open **Settings → Graphics**, enable **Widescreen camera / preserve HUD proportions (experimental)**, then enable **Ultrawide: fit display (experimental)**. Use landscape orientation with stereoscopic 3D disabled. Fit display adapts the camera to wider screens while keeping HUD and text proportions. Disable fit display to return to 16:9. Both options are off by default.
+
+These are experimental features. Local geometry, touch/HUD, and targeting-state checks pass; in-game visual and gameplay testing is still needed, particularly at scene edges, in menus, and during screen effects and transitions.
 
 ## Get started
 
