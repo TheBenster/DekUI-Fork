@@ -8,10 +8,10 @@ int main(){
     auto center=T::Project(.5f,.5f,.1f,1920,1080,0,0,1920,1080,true);
     assert(std::abs(center.x-200)<.001f&&std::abs(center.y-120)<.001f);
     auto edge=T::Project(0,0,.1f,1920,1080,0,0,1920,1080,true);
-    assert(edge.x==0&&edge.y==0); // HUD projection remains 400x240.
+    assert(std::abs(edge.x+13.333333f)<.001f&&edge.y==0); // Invert 16:9 clip correction.
     for(float x:{88.f,176.f,1494.f,1615.f,1740.f}){
         const auto a=T::Project(x/1920,.5f,.05f,1920,1080,60,0,1800,1080,true);
-        assert(std::abs(60+a.x*1800/400-x)<.001f);
+        assert(std::abs(60+(a.x-200+200*(1800.f/1080*240/400))*1080/240-x)<.001f);
     }
     assert(!T::Project(0,0,1,0,0,0,0,0,0,true).Valid());
     Memory m;P::Hook hook;
