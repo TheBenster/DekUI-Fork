@@ -142,6 +142,8 @@ RendererVulkan::RendererVulkan(Core::System& system, Pica::PicaCore& pica_,
       present_heap{instance, scheduler.GetMasterSemaphore(), PRESENT_BINDINGS, 32} {
 #ifdef ENABLE_MM3D_PRESENTATION
     const auto& primary_layout = render_window.GetFramebufferLayout();
+    MM3D::Widescreen::UpdateDisplayAspect(true,primary_layout.top_screen,primary_layout.bottom_screen,
+        primary_layout.width,primary_layout.bottom_screen_enabled);
     MM3D::Widescreen::UpdateLayoutSupport(true, primary_layout.top_screen_enabled,
         primary_layout.is_rotated, primary_layout.render_3d_mode==Settings::StereoRenderOption::Off);
 #endif
@@ -1238,6 +1240,8 @@ void RendererVulkan::DrawScreens(Frame* frame, const Layout::FramebufferLayout& 
     // This must precede PrepareDraw, outside the presentation render pass.
     for(const auto& [id,layer]:rasterizer.PromptOverlays())
         if(layer && layer->Visible())layer->PrepareForSampling();
+    MM3D::Widescreen::UpdateDisplayAspect(!isSecondaryWindow,layout.top_screen,layout.bottom_screen,
+        layout.width,layout.bottom_screen_enabled);
     const bool wide_supported=layout.top_screen_enabled && layout.is_rotated &&
         layout.render_3d_mode==Settings::StereoRenderOption::Off;
     MM3D::Widescreen::UpdateLayoutSupport(!isSecondaryWindow,
@@ -1520,6 +1524,8 @@ void RendererVulkan::SwapBuffers() {
 
     const Layout::FramebufferLayout& layout = render_window.GetFramebufferLayout();
 #ifdef ENABLE_MM3D_PRESENTATION
+    MM3D::Widescreen::UpdateDisplayAspect(true,layout.top_screen,layout.bottom_screen,
+        layout.width,layout.bottom_screen_enabled);
     MM3D::Widescreen::UpdateLayoutSupport(true, layout.top_screen_enabled, layout.is_rotated,
         layout.render_3d_mode==Settings::StereoRenderOption::Off);
     static unsigned viewport_report_count = 0;
