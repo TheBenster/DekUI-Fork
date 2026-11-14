@@ -891,6 +891,25 @@ void Overlay::Draw(vk::CommandBuffer command, vk::Framebuffer framebuffer,
             state.settings.camera_zoom_out=1.f;
             Widescreen::camera_zoom_out.store(1.f);
         };
+        const auto widescreen_controls=[&]() {
+        if(AndroidMenuStyle::Checkbox("Widescreen camera / preserve HUD proportions (experimental)",&state.settings.widescreen)) {
+            Widescreen::enabled.store(state.settings.widescreen);
+            const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
+            state.status=saved?"Widescreen setting saved":"Widescreen changed; settings save FAILED";
+        }
+        if(state.settings.widescreen) {
+            if(AndroidMenuStyle::Checkbox("Ultrawide: fit display (experimental)",&state.settings.widescreen_fit_display)) {
+                Widescreen::fit_display.store(state.settings.widescreen_fit_display);
+                const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
+                state.status=saved?"Display aspect setting saved":"Display aspect changed; settings save FAILED";
+            }
+            ImGui::Text("Camera aspect: %.3f:1",Widescreen::CurrentAspect());
+            ImGui::TextWrapped("Fit display reveals more world on wider screens. Turn it off for 16:9. HUD and text keep their proportions; check scene edges and full-screen effects.");
+            ImGui::Text("Top-screen draws corrected last frame: %u",Widescreen::corrected_draws.load());
+            if(!Widescreen::supported_layout.load()) ImGui::TextWrapped("Requires a landscape top screen with stereoscopic 3D disabled.");
+            ImGui::TextWrapped("Keeps HUD and text centered at their original proportions. Check scene edges, menus and transitions; some full-screen effects may need exceptions.");
+        }
+        };
         const auto camera_zoom_control=[&]() {
             bool changed=AndroidMenuStyle::SliderFloat("Field of View",&state.settings.game_camera_fov,
                 45.f,70.f,"%.1f deg",ImGuiSliderFlags_AlwaysClamp);
@@ -1342,6 +1361,7 @@ void Overlay::Draw(vk::CommandBuffer command, vk::Framebuffer framebuffer,
             }
             if(begin_page("Graphics")) {
                 interpolation_control();
+                widescreen_controls();
                 camera_zoom_control();
                 actor_distance_control();
                 int factor=resolution.load();
@@ -1705,23 +1725,7 @@ void Overlay::Draw(vk::CommandBuffer command, vk::Framebuffer framebuffer,
             ImGui::TextWrapped("Dated backups are made after successful startup loads. Restore applies live settings and preserves the previous file first. Covers presentation settings; installed layout archives and separate notebook/profile files are not included.");
         }
 
-        if(ImGui::Checkbox("Widescreen camera / preserve HUD proportions (experimental)",&state.settings.widescreen)) {
-            Widescreen::enabled.store(state.settings.widescreen);
-            const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
-            state.status=saved?"Widescreen setting saved":"Widescreen changed; settings save FAILED";
-        }
-        if(state.settings.widescreen) {
-            if(ImGui::Checkbox("Ultrawide: fit display (experimental)",&state.settings.widescreen_fit_display)) {
-                Widescreen::fit_display.store(state.settings.widescreen_fit_display);
-                const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
-                state.status=saved?"Display aspect setting saved":"Display aspect changed; settings save FAILED";
-            }
-            ImGui::Text("Camera aspect: %.3f:1",Widescreen::CurrentAspect());
-            ImGui::TextWrapped("Fit display reveals more world on wider screens. Turn it off for 16:9. HUD and text keep their proportions; check scene edges and full-screen effects.");
-            ImGui::Text("Top-screen draws corrected last frame: %u",Widescreen::corrected_draws.load());
-            if(!Widescreen::supported_layout.load()) ImGui::TextWrapped("Requires a landscape top screen with stereoscopic 3D disabled.");
-            ImGui::TextWrapped("Keeps HUD and text centered at their original proportions. Check scene edges, menus and transitions; some full-screen effects may need exceptions.");
-        }
+        widescreen_controls();
         bool zoom_changed = ImGui::SliderFloat("Camera zoom out (experimental)",
             &state.settings.camera_zoom_out, 1.f, 1.5f, "%.2fx", ImGuiSliderFlags_AlwaysClamp);
         ImGui::SameLine();
