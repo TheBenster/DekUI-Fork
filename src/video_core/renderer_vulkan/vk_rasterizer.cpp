@@ -793,7 +793,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
 #ifdef ENABLE_MM3D_PRESENTATION
     // MM3D uses a 480x400 top viewport (the display itself is 240x400). Compress its display-X
     // clip coordinate before clipping: perspective draws reveal more world,
-    // while orthographic UI recovers its proportions in the 16:9 compositor.
+    // while orthographic UI recovers its proportions in the selected-aspect compositor.
     const auto wide_viewport=regs.rasterizer.GetViewportRect();
     const bool wide_top=MM3D::Widescreen::Active() && !shadow_rendering && using_color_fb &&
         MM3D::Widescreen::IsTopViewport(wide_viewport.GetWidth(),wide_viewport.GetHeight());
@@ -856,7 +856,7 @@ bool RasterizerVulkan::Draw(bool accelerate, bool is_indexed) {
     // All three lens passes must cover the same full viewport. Compressing
     // only the stencil masks leaves visible-state strips beside the purple cover.
     wide_bypass |= lens_kind.has_value();
-    const float wide_scale=wide_top && !wide_bypass?MM3D::Widescreen::HorizontalScale:1.f;
+    const float wide_scale=wide_top && !wide_bypass?MM3D::Widescreen::CurrentHorizontalScale():1.f;
     // Depth testing is a provisional world-draw filter, not a verified camera identity.
     // Keep zoom independent of the widescreen checkbox and exclude shadow/offscreen layouts.
     const auto& depth = regs.framebuffer.output_merger;
