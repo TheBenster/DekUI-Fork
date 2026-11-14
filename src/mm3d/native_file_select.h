@@ -243,7 +243,7 @@ struct Hook {
                 if(Named(m,*child,"black_screen_g")) {
                     // Native bottom dimmer is 320x240. Top spans 0..400,
                     // or -13.333..413.333 with the widescreen projection.
-                    const float width=wide?240.f*16.f/9.f:400.f;
+                    const float width=wide?240.f*Widescreen::CurrentAspect():400.f;
                     if(!helper.Transform(m,*child,writes,seen,
                         {width/320.f,0,0,1,(400.f-width)*.5f,0}))return false;
                     continue;

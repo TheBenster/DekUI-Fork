@@ -20,11 +20,11 @@ inline void Trace(unsigned slot,const char* stage,const Anchor& target,float a=0
 inline void Publish(const State& next){std::scoped_lock lock(mutex);current=next;}
 inline State Snapshot(){std::scoped_lock lock(mutex);return current;}
 inline Anchor Project(float x,float y,float diameter,float windowWidth,float windowHeight,
-                      float left,float top,float width,float height,bool){
+                      float left,float top,float width,float height,bool wide){
     if(width<=0||height<=0||windowWidth<=0||windowHeight<=0)return {};
-    // The game HUD uses a 400x240 orthographic projection even when the
-    // world camera is widescreen. Invert the actual top-screen viewport.
-    constexpr float nativeWidth=400.f;
+    // Undo the scene clip correction as well as the actual composed viewport.
+    // This keeps item glyphs under their Android buttons at every aspect ratio.
+    const float nativeWidth=wide?width/height*240.f:400.f;
     return {200.f+((x*windowWidth-left)/width-.5f)*nativeWidth,
         (y*windowHeight-top)/height*240.f,diameter*windowWidth/height*240.f};
 }

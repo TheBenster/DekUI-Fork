@@ -386,7 +386,7 @@ struct Hook {
             // Shared notebook backdrop is a 400x240 pane, independent of
             // event/schedule panel controls. Extend around the screen center.
             std::vector<NativeInventory::Hook::Write> writes;std::vector<U32> seen;
-            constexpr float factor=16.f/15.f;
+            const float factor=Widescreen::WidthExpansion();
             if(!helper.Transform(m,layout+8,writes,seen,{factor,0,0,1,200.f*(1.f-factor),0}))return;
             for(const auto& w:writes)m.Write(w.address,w.after);
             frames.back()=std::move(writes);return;

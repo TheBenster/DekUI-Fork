@@ -11,6 +11,7 @@
 #include <vector>
 #include "mm3d/dialogue_scale.h"
 #include "mm3d/gear_menu.h"
+#include "mm3d/widescreen.h"
 
 namespace MM3D::NativeInventory {
 using U32 = std::uint32_t;
@@ -853,7 +854,7 @@ struct Hook {
         }
         if(found!=3) return false;
         std::vector<U32> seen;
-        constexpr float factor=16.f/15.f;
+        const float factor=Widescreen::WidthExpansion();
         return Transform(m,layout+8,writes,seen,{factor,0,0,1,200.f*(1.f-factor),0});
     }
     template<class M> bool GearPhoto(M& m,U32 layout) const {

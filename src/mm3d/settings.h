@@ -82,6 +82,7 @@ struct Settings {
     bool show_performance = false;
     bool show_startup_settings_hint = true;
     bool widescreen = false;
+    bool widescreen_fit_display = false;
     float camera_zoom_out = 1.f;
     float game_camera_fov = 65.f;
     float camera_distance = 1.f;

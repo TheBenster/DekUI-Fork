@@ -30,7 +30,7 @@ inline U32 Scale(float fov,bool wide,float zoom){
     constexpr float rad=3.14159265358979323846f/360.f;
     // Uniform growth preserves the circular silhouette. Its horizontal extent
     // covers the wider frustum; vertical excess naturally clips to the viewport.
-    const float factor=std::tan(fov*rad)/std::tan(45.f*rad)*zoom*(wide?16.f/15.f:1.f);
+    const float factor=std::tan(fov*rad)/std::tan(45.f*rad)*zoom*(wide?Widescreen::WidthExpansion():1.f);
     return std::bit_cast<U32>(.1f*factor);
 }
 template<class M> bool Expand(M& m,U32 matrix,float fov,bool wide,float zoom) {

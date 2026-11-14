@@ -193,6 +193,7 @@ void ApplyPresentationSettings(const Settings& settings) {
     NativeMinimap::right_margin.store(settings.minimap_right_margin);
     NativeMinimap::bottom_margin.store(settings.minimap_bottom_margin);
     Widescreen::enabled.store(settings.widescreen);
+    Widescreen::fit_display.store(settings.widescreen_fit_display);
     Widescreen::camera_zoom_out.store(settings.camera_zoom_out);
     {
         std::scoped_lock lock(WidescreenProbe::mutex);
@@ -1390,7 +1391,7 @@ void Overlay::Draw(vk::CommandBuffer command, vk::Framebuffer framebuffer,
                 auto android=AndroidMenu::Snapshot();
                 bool show=android.touch;
                 if(AndroidMenuStyle::Checkbox("Show touch controls",&show))AndroidMenu::Request(AndroidMenu::TouchVisible,show);
-                if(ImGui::Button("Touch-control appearance / HUD on buttons"))AndroidMenu::Request(AndroidMenu::TouchAppearance);
+                if(ImGui::Button("Touch-control options / HUD / toggle targeting"))AndroidMenu::Request(AndroidMenu::TouchAppearance);
                 if(ImGui::Button("Edit touch-control placement"))AndroidMenu::Request(AndroidMenu::TouchEdit);
                 if(ImGui::Button("Choose visible touch buttons"))AndroidMenu::Request(AndroidMenu::TouchButtons);
                 int opacity=android.opacity;
@@ -1704,12 +1705,19 @@ void Overlay::Draw(vk::CommandBuffer command, vk::Framebuffer framebuffer,
             ImGui::TextWrapped("Dated backups are made after successful startup loads. Restore applies live settings and preserves the previous file first. Covers presentation settings; installed layout archives and separate notebook/profile files are not included.");
         }
 
-        if(ImGui::Checkbox("16:9 camera / preserve HUD proportions (experimental)",&state.settings.widescreen)) {
+        if(ImGui::Checkbox("Widescreen camera / preserve HUD proportions (experimental)",&state.settings.widescreen)) {
             Widescreen::enabled.store(state.settings.widescreen);
             const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
             state.status=saved?"Widescreen setting saved":"Widescreen changed; settings save FAILED";
         }
         if(state.settings.widescreen) {
+            if(ImGui::Checkbox("Ultrawide: fit display (experimental)",&state.settings.widescreen_fit_display)) {
+                Widescreen::fit_display.store(state.settings.widescreen_fit_display);
+                const bool saved=QDir().mkpath(state.directory) && state.settings.Save(state.directory+"presentation.json");
+                state.status=saved?"Display aspect setting saved":"Display aspect changed; settings save FAILED";
+            }
+            ImGui::Text("Camera aspect: %.3f:1",Widescreen::CurrentAspect());
+            ImGui::TextWrapped("Fit display reveals more world on wider screens. Turn it off for 16:9. HUD and text keep their proportions; check scene edges and full-screen effects.");
             ImGui::Text("Top-screen draws corrected last frame: %u",Widescreen::corrected_draws.load());
             if(!Widescreen::supported_layout.load()) ImGui::TextWrapped("Requires a landscape top screen with stereoscopic 3D disabled.");
             ImGui::TextWrapped("Keeps HUD and text centered at their original proportions. Check scene edges, menus and transitions; some full-screen effects may need exceptions.");

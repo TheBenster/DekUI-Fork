@@ -334,6 +334,7 @@ int main(int argc, char** argv) {
         settings.disable_low_health_beep = true;
         settings.mute_music = true;
         settings.widescreen = true;
+        settings.widescreen_fit_display = true;
         settings.camera_zoom_out = 1.25f;
         settings.game_camera_fov = 55.f;
         settings.cutscene_camera_fov = 60.f;
@@ -392,6 +393,7 @@ int main(int argc, char** argv) {
         Require(loaded.sword_activate_owls,"sword activation preference persists");
         Require(loaded.disable_bomber_approach,"Bomber approach preference persists");
         Require(loaded.widescreen,"widescreen persists");
+        Require(loaded.widescreen_fit_display,"display aspect preference persists");
         Require(loaded.show_performance,"frame-rate display preference persists");
         Require(loaded.interpolation_60fps,"interpolation opt-in persists");
         Require(loaded.interpolation_cpu_vertices,"CPU interpolation method persists");
