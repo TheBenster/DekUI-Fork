@@ -27,12 +27,18 @@ public final class ReMaskedTouchControls extends View {
     private final Bridge bridge;
     private final View owner;
     private final SharedPreferences preferences;
+    private final ReMaskedTargetToggle targetToggle = new ReMaskedTargetToggle();
     private boolean editing=false;
     private Control editingControl;
     private float dragX,dragY;
     private String positionKey(Control c) {return "ReMaskedTouch-v1-"+(getWidth()>getHeight()?"landscape":"portrait")+"-"+c.id+"-"+c.shape;}
     private void button(int id,boolean down){bridge.button(id,down);}
-    private void axis(int id,int value){bridge.axis(id,value);}
+    private void axis(int id,int value){
+        if(id==4) {
+            boolean active=targetToggle.update(value>0,preferences.getBoolean("ReMaskedToggleTarget",false));
+            bridge.axis(id,active?32767:-32768);
+        } else bridge.axis(id,value);
+    }
     private float opacity(){return bridge.opacity();}
     private float size(){return bridge.size();}
     private int state(){return bridge.state();}
@@ -97,6 +103,8 @@ public final class ReMaskedTouchControls extends View {
     }
     public void cancelInputs() {
         for(int i=0;i<fingers.size();i++)fingers.valueAt(i).release();fingers.clear();
+        if(targetToggle.active())bridge.axis(4,-32768);
+        targetToggle.reset();
     }
     private float individualScale(int nativeId){return (preferences.getInt("controlScale-"+nativeId,50)+50)/100f;}
     private float stickRadius(int id){return 75*unit*individualScale(id==0?713:718);}
@@ -206,7 +214,7 @@ public final class ReMaskedTouchControls extends View {
                 }
                 continue;
             }
-            c.drawable.setState(c.down?new int[]{android.R.attr.state_pressed}:new int[]{});
+            c.drawable.setState((c.down || (c.id==104 && targetToggle.active()))?new int[]{android.R.attr.state_pressed}:new int[]{});
             c.drawable.setBounds(Math.round(c.bounds.left),Math.round(c.bounds.top),Math.round(c.bounds.right),Math.round(c.bounds.bottom));c.drawable.setColorFilter(opacityFilter);c.drawable.draw(canvas);
             paint.setStyle(Paint.Style.FILL);paint.setColor((Math.min(255,Math.round(37*alpha/.28f))<<24)|0xffffff);
             String label=c.label;
