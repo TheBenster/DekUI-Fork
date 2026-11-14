@@ -1,8 +1,14 @@
-name: Benster Android APK
+name: Benster Ultrawide APK
 on:
   push:
-    branches: [android]
+    branches: [ultrawide]
     paths:
+      - 'src/mm3d/**'
+      - 'src/video_core/renderer_vulkan/**'
+      - 'src/android/app/src/main/jni/native.cpp'
+      - 'src/android/app/src/main/java/org/citra/citra_emu/fragments/EmulationFragment.kt'
+      - 'src/android/app/src/main/java/org/citra/citra_emu/overlay/**'
+      - 'tools/mm3d/**'
       - 'src/android/app/src/main/java/org/citra/citra_emu/overlay/InputOverlay.kt'
       - 'src/android/app/src/main/java/org/citra/citra_emu/overlay/ReMaskedTouchControls.java'
       - '.github/workflows/benster-android.yml'
@@ -92,6 +98,13 @@ jobs:
       - name: Run setup and migration tests
         run: |
           python3 -m pip install numpy==2.2.6 pillow==11.0.0
+          c++ -std=c++20 -Wall -Wextra -Werror -Wno-unused-parameter -Isrc tools/mm3d/ultrawide_check.cpp -o "$RUNNER_TEMP/ultrawide-check"
+          "$RUNNER_TEMP/ultrawide-check"
+          c++ -std=c++20 -Isrc tools/mm3d/touch_hud_check.cpp -o "$RUNNER_TEMP/touch-hud-check"
+          "$RUNNER_TEMP/touch-hud-check"
+          mkdir -p "$RUNNER_TEMP/target-toggle-tests"
+          javac -d "$RUNNER_TEMP/target-toggle-tests" src/android/app/src/main/java/org/citra/citra_emu/overlay/ReMaskedTargetToggle.java tools/mm3d/TargetToggleCheck.java
+          java -cp "$RUNNER_TEMP/target-toggle-tests" TargetToggleCheck
           python3 -m unittest discover -s tools/mm3d -p 'test_*.py'
           c++ -std=c++20 -Wall -Wextra -Werror -Isrc src/mm3d/game_language_tests.cpp -o "$RUNNER_TEMP/game-language-tests"
           "$RUNNER_TEMP/game-language-tests"
@@ -109,8 +122,8 @@ jobs:
           allprojects {
               plugins.withId('com.android.application') {
                   extensions.getByName('androidComponents').finalizeDsl { android ->
-                      android.defaultConfig.applicationId = 'io.github.thebenster.dekuifork'
-                      android.defaultConfig.manifestPlaceholders['applicationLabel'] = 'Majora ReMasked Benster'
+                      android.defaultConfig.applicationId = 'io.github.thebenster.dekuifork.ultrawide'
+                      android.defaultConfig.manifestPlaceholders['applicationLabel'] = 'ReMasked Ultrawide'
                       android.defaultConfig.externalNativeBuild.cmake.arguments.addAll([
                           '-DCMAKE_JOB_POOLS=ci_compile=2', '-DCMAKE_JOB_POOL_COMPILE=ci_compile',
                           '-DCMAKE_C_COMPILER_LAUNCHER=ccache', '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache'])
@@ -147,7 +160,7 @@ jobs:
           if 'Signer #1 certificate SHA-256 digest:' not in cert:
               raise SystemExit('APK signature verification did not report a signer')
           badging = subprocess.check_output([str(sdk/'aapt'), 'dump', 'badging', str(apk)], text=True)
-          if "name='io.github.thebenster.dekuifork'" not in badging.splitlines()[0]:
+          if "name='io.github.thebenster.dekuifork.ultrawide'" not in badging.splitlines()[0]:
               raise SystemExit('APK application ID changed')
           if "versionName='"+os.environ['RELEASE_VERSION']+"'" not in badging.splitlines()[0]:
               raise SystemExit('APK version does not match the release')
@@ -155,7 +168,7 @@ jobs:
           for flag in ('debuggable', 'testOnly'):
               if any('android:'+flag+'(' in line and '0xffffffff' in line for line in manifest.splitlines()):
                   raise SystemExit('APK must be optimized and installable outside development tools')
-          out = Path('artifacts')/('Majora-ReMasked-Benster-'+os.environ['RELEASE_VERSION']+'-Android-arm64.apk')
+          out = Path('artifacts')/('Majora-ReMasked-Ultrawide-'+os.environ['RELEASE_VERSION']+'-Android-arm64.apk')
           out.parent.mkdir(exist_ok=True)
           shutil.copy2(apk, out)
           PY
@@ -165,15 +178,15 @@ jobs:
         run: rm -f "$ANDROID_USER_HOME/debug.keystore" "$RUNNER_TEMP/dekui-ci.init.gradle"
       - uses: actions/upload-artifact@v7
         with:
-          name: Majora-ReMasked-Benster-${{ steps.source.outputs.version }}-Android-arm64-${{ steps.source.outputs.sha }}
+          name: Majora-ReMasked-Ultrawide-${{ steps.source.outputs.version }}-Android-arm64-${{ steps.source.outputs.sha }}
           path: artifacts/*.apk
           if-no-files-found: error
       - name: Archive matching source
-        run: python3 tools/mm3d/package_source.py artifacts/Majora-ReMasked-Benster-${{ steps.source.outputs.version }}-Source.tar.gz
+        run: python3 tools/mm3d/package_source.py artifacts/Majora-ReMasked-Ultrawide-${{ steps.source.outputs.version }}-Source.tar.gz
       - name: Check source privacy
         run: python3 tools/mm3d/check_release_privacy.py artifacts/*Source.tar.gz
       - uses: actions/upload-artifact@v7
         with:
-          name: Majora-ReMasked-Benster-${{ steps.source.outputs.version }}-Android-Source-${{ steps.source.outputs.sha }}
+          name: Majora-ReMasked-Ultrawide-${{ steps.source.outputs.version }}-Android-Source-${{ steps.source.outputs.sha }}
           path: artifacts/*Source.tar.gz
           if-no-files-found: error
