@@ -545,7 +545,9 @@ void Java_org_citra_citra_1emu_NativeLibrary_setReMaskedTouchHud(JNIEnv* env,jcl
 #ifdef ENABLE_MM3D_PRESENTATION
     if(enabled&&window&&values&&env->GetArrayLength(values)==30){
         std::array<jfloat,30> data{};env->GetFloatArrayRegion(values,0,30,data.data());
-        const auto& layout=window->GetFramebufferLayout();const auto& top=layout.top_screen;
+        const auto& layout=window->GetFramebufferLayout();auto top=layout.top_screen;
+        if(MM3D::Widescreen::Active())top=MM3D::Widescreen::FitTop(top,layout.bottom_screen,
+            layout.width,layout.bottom_screen_enabled);
         next.enabled=layout.top_screen_enabled;
         static unsigned bridge_traces=0;
         if(bridge_traces++<6)MM3D::TouchHud::Trace(90,"viewport",{},float(layout.width),float(layout.height),float(top.GetWidth()),float(top.GetHeight()));
