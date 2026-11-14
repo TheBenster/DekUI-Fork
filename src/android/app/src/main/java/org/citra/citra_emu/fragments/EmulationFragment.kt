@@ -588,12 +588,17 @@ class EmulationFragment :
         content.addView(layouts)
         val hud=android.widget.CheckBox(requireContext()).apply {text="HUD on buttons";isChecked=preferences.getBoolean("ReMaskedTouchHud",true)}
         val floating=android.widget.CheckBox(requireContext()).apply {text="Floating movement stick";isChecked=EmulationMenuSettings.joystickRelCenter}
-        content.addView(hud);content.addView(floating)
-        MaterialAlertDialogBuilder(requireContext()).setTitle("Touch-control appearance").setView(content)
+        val toggleTarget=android.widget.CheckBox(requireContext()).apply {
+            text="Tap to toggle Z-targeting (ZL)"
+            isChecked=preferences.getBoolean("ReMaskedToggleTarget",false)
+        }
+        content.addView(hud);content.addView(floating);content.addView(toggleTarget)
+        MaterialAlertDialogBuilder(requireContext()).setTitle("Touch-control options").setView(content)
             .setNegativeButton(android.R.string.cancel,null)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 preferences.edit().putInt("ReMaskedTouchFaceLayout",layouts.checkedRadioButtonId-100)
-                    .putBoolean("ReMaskedTouchHud",hud.isChecked).apply()
+                    .putBoolean("ReMaskedTouchHud",hud.isChecked)
+                    .putBoolean("ReMaskedToggleTarget",toggleTarget.isChecked).apply()
                 EmulationMenuSettings.joystickRelCenter=floating.isChecked
                 binding.surfaceInputOverlay.refreshControls()
             }.show()
