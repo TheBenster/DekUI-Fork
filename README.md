@@ -31,6 +31,15 @@ Majora ReMasked builds on [tgacquin’s DekUI](https://github.com/tgacquin/mm3d-
 - Twilight Princess Link generated from your own GameCube Twilight Princess ROM, including action voices, matching high-resolution textures from subfolders, and an optional TP Master Sword and sheath.
 - Original green, blue, and red tunic variants, an optional Master Sword model and matching HUD icon, and matching textures from your own OoT3D texture pack when available.
 
+## Sun/lens-flare investigation branch
+
+`investigate/sun-flare-android` preserves the ultrawide and toggle-targeting changes
+and adds **Settings → Diagnostics → Capture performance (30 seconds)** on Android.
+It records depth/other readback sizes and timings to investigate sun-facing stalls.
+**This is not a proven slowdown fix and does not add a flare-disable switch.**
+See the [source trace, test results and comparison procedure](docs/SUN_FLARE_INVESTIGATION.md)
+for what is confirmed, what remains unknown, and how to capture useful logs.
+
 ## Android test branch: ultrawide and toggle Z-targeting
 
 These additions are on this fork's `ultrawide` branch and are not part of the upstream release linked above. The test APK is named **ReMasked Ultrawide** and installs separately. Download the **Android-arm64** artifact from a successful [Benster Ultrawide APK build](https://github.com/TheBenster/DekUI-Fork/actions/workflows/benster-android.yml?query=branch%3Aultrawide), extract the ZIP, and install the APK.
